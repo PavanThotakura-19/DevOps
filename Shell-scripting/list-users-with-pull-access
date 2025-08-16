@@ -1,0 +1,43 @@
+#!/bin/bash
+#set -x
+expected_args=2
+if [ $# -ne $expected_args ]
+then
+        echo 'Please execte the script with the required 2 arguments'
+        exit 1
+fi
+
+api_url='https://api.github.com'
+
+#reading the env variables
+username=$username
+token=$token
+
+Repo_owner="$1"
+Repo_name="$2"
+
+function get_request {
+
+        local endpoint="$1"
+        local url="${api_url}/${endpoint}"
+
+        curl -s -u "$username:$token" "$url"
+}
+
+
+function list_users {
+        local endpoint="repos/${Repo_owner}/${Repo_name}/collaborators"
+        collaborators=$(get_request "$endpoint" | jq -r '.[]|select(.permissions.pull == true)|.login')
+
+        if [ -z $collaborators ]
+        then
+
+                echo "No users with pull access found for ${Repo_owner}/${Repo_name}"
+        else
+                echo "users with pull access to ${Repo_owner}/${Repo_name}"
+                echo $collaborators
+        fi
+
+}
+
+list_users
