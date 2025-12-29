@@ -1,0 +1,12 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: list s3 buckets
+      amazon.aws.s3_bucket_info:
+      register: result
+    - name: enable versioning
+      amazon.aws.s3_bucket:
+        name: "{{ item.name }}"
+        versionining: yes
+      loop: "{{ result.buckets }}"

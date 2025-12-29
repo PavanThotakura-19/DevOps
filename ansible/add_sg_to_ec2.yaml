@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: create security group
+      amazon.aws.ec2_security_group:
+        name: ssh-security-group
+        description: sg with rule descriptions
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: "0.0.0.0/0"
+      register: sg_info
+    - name: add security group
+      amazon.aws.ec2_instance:
+        security_group: "{{ sg_info.group_id }}"
+      loop:
+        - { image: "ami-0360c520857e3138f", name: "manage-node-1" }
+        - { image: "ami-0360c520857e3138f", name: "manage-node-2" }
+        - { image: "ami-0fd3ac4abb734302a", name: "manage-node-3" }
